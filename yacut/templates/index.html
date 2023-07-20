@@ -5,10 +5,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="img/fav/fav.ico" type="image">
-  <link rel="apple-touch-icon" sizes="180x180" href="img/fav/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="img/fav/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="img/fav/favicon-16x16.png">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="../static/img/fav/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../static/img/fav/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../static/img/fav/favicon-16x16.png">
+  <link rel="stylesheet" href="../static/css/bootstrap.min.css">
   <title>YaCut - укоротитель ссылок</title>
 </head>
 
@@ -46,19 +46,33 @@
           <div class="col-sm">
           </div>
           <div class="col-sm">
-            <form>
+            <form method="POST" novalidate>
+            {{ form.csrf_token }}
               <div>
                 <div>
-                  <input type="text" class="form-control form-control-lg py-2 mb-3" id="form-title" name=""
-                    placeholder="Длинная ссылка">
-                  <p><span style="color:red">Текст возможной ошибки</span></p>
+                  {{ form.original_link(class="form-control form-control-lg py-3 mb-3", placeholder=form.original_link.label.text) }}
+                  <p>
+                    {% with messages = get_flashed_messages(category_filter=["link-message"]) %}
+                      {% if messages %}
+                        {% for message in messages %}
+                          <span style="color: red">{{ message }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+                  </p>
                 </div>
                 <div>
-                  <input type="url" class="form-control form-control-lg py-2 mb-3" id="form-link" name=""
-                    placeholder="Ваш вариант короткой ссылки">
-                  <p><span style="color:red">Текст возможной ошибки</span></p>
+                  {{ form.custom_id(class="form-control form-control-lg py-3 mb-3", placeholder=form.custom_id.label.text) }}
+                  <p>
+                    {% with messages = get_flashed_messages(category_filter=["custom-message"]) %}
+                      {% if messages %}
+                        {% for message in messages %}
+                          <span style="color: red">{{ message }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+                  </p>
                 </div>
-
                 <input type="submit" class="btn btn-primary" value="Создать">
               </div>
             </form>
@@ -74,7 +88,9 @@
           </div>
           <div class="col-sm">
             <p class="text-center">
-            <h5 class="text-center">Пример информационного сообщения</h5>
+            {% if short_url %}
+                <p>Ваш новая ссылка готова: <a href="{{ url_for('redirect_to_url', short_url=short_url.short, _external=True) }}">{{ url_for('redirect_to_url', short_url=short_url.short, _external=True) }}</a></p>
+            {% endif %}
             </p>
           </div>
           <div class="col-sm">
