@@ -1,30 +1,32 @@
 import re
+from http import HTTPStatus
 
 from flask import jsonify, request
 
 from . import app, db
 from .error_handlers import InvalidAPIUsage
 from .models import URLMap
-from .views import generate_unique_id
+from .utils import generate_unique_id
 
 
 @app.route('/api/id/<string:short_url>/', methods=['GET'])
 def get_url(short_url):
     url = URLMap.query.filter_by(short=short_url).first()
     if url is None:
-        raise InvalidAPIUsage('Указанный id не найден', 404)
+        raise InvalidAPIUsage('Указанный id не найден', HTTPStatus.NOT_FOUND)
     url = url.original
-    return jsonify({'url': url}), 200
+    return jsonify({'url': url}), HTTPStatus.OK
 
 
 @app.route('/api/id/<int:id>/', methods=['DELETE'])
 def delete_opinion(id):
     url = URLMap.query.get(id)
     if url is None:
-        raise InvalidAPIUsage('Url с указанным id не найдено', 404)
+        raise InvalidAPIUsage('Url с указанным id не найдено',
+                              HTTPStatus.NOT_FOUND)
     db.session.delete(url)
     db.session.commit()
-    return '', 204
+    return '', HTTPStatus.NO_CONTENT
 
 
 @app.route('/api/id/', methods=['POST'])
@@ -56,4 +58,4 @@ def add_url():
     new_url = URLMap(original=original, short=short)
     db.session.add(new_url)
     db.session.commit()
-    return jsonify(new_url.to_dict()), 201
+    return jsonify(new_url.to_dict()), HTTPStatus.CREATED

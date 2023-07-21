@@ -11,7 +11,6 @@ class URLMap(db.Model):
     short = db.Column(db.String(128), unique=True, nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    # Вот он — новый метод:
     def to_dict(self):
         return dict(
             url=self.original,
